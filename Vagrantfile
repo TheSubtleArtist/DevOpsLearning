@@ -9,7 +9,9 @@ PROVIDER='virtualbox'
 #############################
 ###   NETWORK VARIABLES   ###
 #############################
-KUBERNETES_IP="192.168.56.13"
+KUBEMASTER_IP="192.168.56.25"
+KUBENODEONE_IP="192.168.56.26"
+KUBENODETWO_IP="192.168.56.27"
 
 
 Vagrant.configure("2") do |config|
@@ -25,17 +27,47 @@ Vagrant.configure("2") do |config|
     echo "Universal Config Complete"
   SHELL
 
- #######################
-  ###   KUBERNETES   #### 
-  #######################
-  config.vm.define "kubernetes", autostart:false do |kubernetes|
-    kubernetes.vm.box = UBUNTU_VM
-    kubernetes.vm.hostname = 'kubernetes'
-    kubernetes.vm.network "private_network", ip: KUBE_IP
-    kubernetes.vm.provider PROVIDER do |vbox|
-      vbox.memory = "8192"
-      vbox.cpus = "3"
+  #############################
+  ###   KUBERNETES MASTER  #### 
+  #############################
+  config.vm.define "kubemaster", autostart:true do |kubemaster|
+    kubemaster.vm.box = UBUNTU_VM
+    kubemaster.vm.hostname = 'kubemaster'
+    kubemaster.vm.network "private_network", ip: KUBEMASTER_IP
+    kubemaster.vm.provider PROVIDER do |vbox|
+      vbox.name = "kubemaster"
+      vbox.memory = "4096"
+      vbox.cpus = "2"
     end
-    kubernetes.vm.provision "shell", path: "setup-kubernetes.sh"
+    #kubemaster.vm.provision "shell", path: "setup-kubernetes.sh"
+    kubemaster.vm.provision "shell", path: "setup-kubemaster.sh"
+  end
+  #############################
+  ###   KUBERNETES NODE 1  #### 
+  #############################
+  config.vm.define "kubenodeone", autostart:true do |kubenodeone|
+    kubenodeone.vm.box = UBUNTU_VM
+    kubenodeone.vm.hostname = 'kubenodeone'
+    kubenodeone.vm.network "private_network", ip: KUBENODEONE_IP
+    kubenodeone.vm.provider PROVIDER do |vbox|
+      vbox.name = "kubenodeone"
+      vbox.memory = "4096"
+      vbox.cpus = "2"
+    end
+    kubenodeone.vm.provision "shell", path: "setup-kubemnode.sh"
+  end
+  #############################
+  ###   KUBERNETES NODE 2  #### 
+  #############################
+  config.vm.define "kubenodetwo", autostart:true do |kubenodetwo|
+    kubenodetwo.vm.box = UBUNTU_VM
+    kubenodetwo.vm.hostname = 'kubemaster'
+    kubenodetwo.vm.network "private_network", ip: KUBENODETWO_IP
+    kubenodetwo.vm.provider PROVIDER do |vbox|
+      vbox.name = "kubenode2"
+      vbox.memory = "4096"
+      vbox.cpus = "2"
+    end
+    kubenodetwo.vm.provision "shell", path: "setup-kubemaster.sh"
   end
 end
