@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   vprodb:
-    image: thesubtleartist/vprofiledb
+    image: vprocontainers/vprofiledb
     ports:
       - "3306:3306"
     volumes:
@@ -23,14 +23,14 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   vproapp:
-    image: thesubtleartist/vprofileapp
+    image: vprocontainers/vprofileapp
     ports:
       - "8080:8080"
     volumes: 
       - vproappdata:/usr/local/tomcat/webapps
 
   vproweb:
-    image: thesubtleartist/vprofileweb
+    image: vprocontainers/vprofileweb
     ports:
       - "80:80"
 volumes:
