@@ -1,6 +1,6 @@
 #!/bin/bash
-###KUBEMASTER###
-# Tutorial: https://devopscube.com/setup-kubernetes-cluster-kubeadm/
+# Reference: https://devopscube.com/setup-kubernetes-cluster-kubeadm/
+# Reference: https://computingforgeeks.com/deploy-kubernetes-cluster-on-ubuntu-with-kubeadm/
 sudo apt update -y
 sudo apt upgrade -y
 sudo apt-get install -y software-properties-common curl apt-transport-https ca-certificates gpg
