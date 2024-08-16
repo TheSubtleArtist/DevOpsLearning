@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant"
   #config.vm.box_check_update = false
   #config.vm.box_check_update = false
-  #config.vbguest.auto_update = false
+  config.vbguest.auto_update = false
   config.vm.provision "shell", inline: <<-SHELL
     echo "Universal Config Complete"
   SHELL
