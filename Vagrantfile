@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubenodeone.vm.provision "shell", path: "setup-kubemnode.sh"
+    kubenodeone.vm.provision "shell", path: "setup-kubenode.sh"
   end
   #############################
   ###   KUBERNETES NODE 2  #### 
@@ -68,6 +68,6 @@ Vagrant.configure("2") do |config|
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubenodetwo.vm.provision "shell", path: "setup-kubemaster.sh"
+    kubenodetwo.vm.provision "shell", path: "setup-kubenode.sh"
   end
 end
