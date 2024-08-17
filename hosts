@@ -1,5 +1,5 @@
-# Ansible Invnetory File
-kubemaster  ansible_host=192.168.56.25 
+[hosts]
+kubemaster ansible_host=192.168.56.25 
 kubenodeone ansible_host=192.168.56.26
 kubenodetwo ansible_host=192.168.56.27
 
@@ -13,5 +13,5 @@ kubenodetwo
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
-ansible_user=vagrant 
-ansible_ssh_private_key_file=~/.ssh/kube_rsa
+ansible_user=vagrant
+ansible_ssh_private_key_file=/home/vagrant/.ssh/vagrant

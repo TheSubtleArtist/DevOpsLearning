@@ -1,7 +1,14 @@
 sudo apt update -y
-sudo apgt-get upgrade -y
+sudo apt-get upgrade -y
+sudo apt-get install -y sshpass
 
-ssh-keygen -f ~/.ssh/vagrant3 -q -t rsa -N ""
+mkdir -p /home/vagrant/kube-cluster
+cp setup-os-master.sh /home/vagrant/kube-cluster/
+sudo chown -R vagrant:vagrant /home/vagrant
 
-sshpass -v -p vagrant ssh-copy-id -f -i /home/vagrant/.ssh/vagrant3.pub vagrant@kubenodeone
-sshpass -v -p vagrant ssh-copy-id -f -i /home/vagrant/.ssh/vagrant3.pub vagrant@kubenodetwo
+#CURRENTUSER=$(whoami)
+
+#ssh-keygen -f ~/.ssh/$(whoami) -q -t rsa -N "vagrant" -b 4096 -v
+
+#sshpass -p vagrant ssh-copy-id -f -i ~/.ssh/$(whoami).pub $(whoami)@kubenodeone
+#sshpass -p vagrant ssh-copy-id -f -i ~/.ssh/$(whoami).pub $(whoami)@kubenodetwo

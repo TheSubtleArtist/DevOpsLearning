@@ -1,0 +1,5 @@
+---
+- import_playbook: initial.yml
+- import_playbook: kube-dependencies.yml
+- import_playbook: control-plane.yml
+- import_playbook: workers.yml
