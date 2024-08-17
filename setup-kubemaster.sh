@@ -1,114 +1,190 @@
 #!/bin/bash
-# Reference: https://devopscube.com/setup-kubernetes-cluster-kubeadm/
-# Reference: https://computingforgeeks.com/deploy-kubernetes-cluster-on-ubuntu-with-kubeadm/
-sudo apt update -y
-sudo apt upgrade -y
-sudo apt-get install -y software-properties-common curl apt-transport-https ca-certificates gpg
-sudo apt autoremove -y
-touch /tmp/initout.log 
 
-# Enable iptables Bridged Traffic on all the Nodes
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-overlay
-br_netfilter
-EOF
+# https://www.digitalocean.com/community/tutorials/how-to-create-a-kubernetes-cluster-using-kubeadm-on-ubuntu-20-04
 
-sudo modprobe overlay
-sudo modprobe br_netfilter
+sudo apt update 
+sudo apt-get upgrade -y
+sudo apt-get install -y unzip git
 
-# sysctl params required by setup, params persist across reboots
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables  = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.ipv4.ip_forward                 = 1
-EOF
+# INSTALL ANSIBLE
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -y ansible
 
-# Apply sysctl params without reboot
-sudo sysctl --system
+mkdir -p ~/kube-cluster
+cd ~/kube-cluster
 
-# Disable Swap
-sudo swapoff -a
-(crontab -l 2>/dev/null; echo "@reboot /sbin/swapoff -a") | crontab - || true
+cat << HOSTS > ~/kube-cluster/hosts
+# Ansible Invnetory File
+kubemaster  ansible_host=192.168.56.25 ansible_user=vagrant
+kubenodeone ansible_host=192.168.56.26 ansible_user=vagrant
+kubenodetwo ansible_host=192.168.56.27 ansible_user=vagrant
 
 
-# Install CRI-O Runtime On All The Nodes
-sudo apt-get update -y
-curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key |
-    gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
-echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /" |
-    tee /etc/apt/sources.list.d/cri-o.list
-#OS=xUbuntu_20.04
-#CRIO_VERSION=1.28
-#echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-#echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
-#url -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-#curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
+[control_plane]
+kubemaster
 
-sudo apt-get update -y
-sudo apt-get install -y cri-o cri-o-runc
-sudo systemctl daemon-reload
-sudo systemctl enable crio --now
-sudo systemctl start crio.service
+[workers]
+kubenodeone
+kubenodetwo
 
- # Install crictl
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_user=vagrant 
+ansible_ssh_private_key_file=~/.ssh/kube_rsa
+HOSTS
 
-VERSION="v1.30.0"
-wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
-sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
-rm -f crictl-$VERSION-linux-amd64.tar.gz
+cat << INITIAL > ~/kube-cluster/initial.yml
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'ubuntu' user
+      user: name=ubuntu append=yes state=present createhome=yes shell=/bin/bash
 
-#Installing Kubeadm, Kubelet & Kubectl#
-KUBERNETES_VERSION=1.30
-sudo mkdir -p -m 755 /etc/apt/keyrings
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v${KUBERNETES_VERSION}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${KUBERNETES_VERSION}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update -y
-sudo apt-get install -y apt-transport-https ca-certificates
+    - name: allow 'ubuntu' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
 
-sudo apt-get update -y
-sudo apt-get install -y kubelet kubeadm kubectl
-sudo apt-mark hold kubelet kubeadm kubectl
+    - name: set up authorized keys for the ubuntu user
+      authorized_key: user=ubuntu key="{{item}}"
+      with_file:
+        - ~/.ssh/ubuntu_rsa.pub
+INITIAL
 
-sudo apt-get install -y jq
-local_ip="$(ip --json addr show eth0 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
-cat > /etc/default/kubelet << EOF
-KUBELET_EXTRA_ARGS=--node-ip=$local_ip
-EOF
+ansible-playbook -i hosts.yml ~/kube-cluster/kube-dependencies.yml
 
-sleep 12
-echo "Waiting for 120 Seconds...."
-echo "Lets initialize."
+cat << DEPENDS > ~/kube-cluster/initial.yml
+---
+- hosts: all
+  become: yes
+  tasks:
+   - name: create Docker config directory
+     file: path=/etc/docker state=directory
 
-# Initialize Kubeadm On Master Node To Setup Control Plane
-IPADDR=192.168.56.25 # IP Address of the master node
-POD_CIDR=192.168.0.0/16
-NODENAME=$(hostname -s)
-sudo systemctl enable kubelet
-sudo kubeadm config images pull  --cri-socket unix:///var/run/crio/crio.sock
-sudo kubeadm init --cri-socket unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME
+   - name: changing Docker to systemd driver
+     copy:
+      dest: "/etc/docker/daemon.json"
+      content: |
+        {
+        "exec-opts": ["native.cgroupdriver=systemd"]
+        }
+
+   - name: install Docker
+     apt:
+       name: docker.io
+       state: present
+       update_cache: true
+
+   - name: install APT Transport HTTPS
+     apt:
+       name: apt-transport-https
+       state: present
+
+   - name: add Kubernetes apt-key
+     apt_key:
+       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+       state: present
+
+   - name: add Kubernetes' APT repository
+     apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: 'kubernetes'
+
+   - name: install kubelet
+     apt:
+       name: kubelet=1.22.4-00
+       state: present
+       update_cache: true
+
+   - name: install kubeadm
+     apt:
+       name: kubeadm=1.22.4-00
+       state: present
+
+- hosts: control_plane
+  become: yes
+  tasks:
+   - name: install kubectl
+     apt:
+       name: kubectl=1.22.4-00
+       state: present
+       force: yes
+
+DEPENDS
+
+ansible-playbook -i hosts.yml ~/kube-cluster/kube-dependencies.yml
+
+cat << CONTROL > ~/kube-cluster/initial.yml
+
+---
+- hosts: control_plane
+  become: yes
+  tasks:
+    - name: initialize the cluster
+      shell: kubeadm init --pod-network-cidr=10.244.0.0/16 >> cluster_initialized.txt
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
+
+    - name: create .kube directory
+      become: yes
+      become_user: ubuntu
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+
+    - name: install Pod network
+      become: yes
+      become_user: ubuntu
+      shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.txt
+      args:
+        chdir: $HOME
+        creates: pod_network_setup.txt
+CONTROL
+
+ansible-playbook -i hosts.yml ~/kube-cluster/control-plane.yml
+
+kubectl get nodes
+
+cat << WORKERS > ~/kube-cluster/workers.yml
+---
+- hosts: control_plane
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: get join command
+      shell: kubeadm token create --print-join-command
+      register: join_command_raw
+
+    - name: set join command
+      set_fact:
+        join_command: "{{ join_command_raw.stdout_lines[0] }}"
 
 
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-echo export KUBECONFIG=/etc/kubernetes/admin.conf | sudo tee -a /root/.bashrc
+- hosts: workers
+  become: yes
+  tasks:
+    - name: join cluster
+      shell: "{{ hostvars['control1'].join_command }} >> node_joined.txt"
+      args:
+        chdir: $HOME
+        creates: node_joined.txt
+WORKERS
 
+kubectl create deployment nginx --image=nginx
 
+kubectl expose deploy nginx --port 80 --target-port 80 --type NodePort
 
-
-sleep 12
-echo "Waiting for 120 Seconds...."
-
-echo "#!/bin/bash" > /vagrant/cltjoincommand.sh
-kubeadm token create --print-join-command >> /vagrant/cltjoincommand.sh
-
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-wait 120
-
-lsmod | grep br_netfilter
-lsmod | grep overlay
-
-kubectl get pods -n kube-system
-kubectl get --raw='/readyz?verbose'
-echo 'y' | kubectl cluster-info 
-kubectl get pods -n kube-system
+kubectl get services

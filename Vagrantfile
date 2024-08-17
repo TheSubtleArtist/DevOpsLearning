@@ -5,7 +5,7 @@
 ###########################
 UBUNTU_VM='xcoo/focal64'
 PROVIDER='virtualbox'
-
+# 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
 #############################
 ###   NETWORK VARIABLES   ###
 #############################
@@ -26,22 +26,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     echo "Universal Config Complete"
   SHELL
-
-  #############################
-  ###   KUBERNETES MASTER  #### 
-  #############################
-  config.vm.define "kubemaster", autostart:true do |kubemaster|
-    kubemaster.vm.box = UBUNTU_VM
-    kubemaster.vm.hostname = 'kubemaster'
-    kubemaster.vm.network "private_network", ip: KUBEMASTER_IP
-    kubemaster.vm.provider PROVIDER do |vbox|
-      vbox.name = "kubemaster"
-      vbox.memory = "4096"
-      vbox.cpus = "2"
-    end
-    #kubemaster.vm.provision "shell", path: "setup-kubernetes.sh"
-    kubemaster.vm.provision "shell", path: "setup-kubemaster.sh"
-  end
   #############################
   ###   KUBERNETES NODE 1  #### 
   #############################
@@ -54,7 +38,7 @@ Vagrant.configure("2") do |config|
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubenodeone.vm.provision "shell", path: "setup-kubenode.sh"
+    kubenodeone.vm.provision "shell", path: "setup-os-node.sh"
   end
   #############################
   ###   KUBERNETES NODE 2  #### 
@@ -68,6 +52,21 @@ Vagrant.configure("2") do |config|
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubenodetwo.vm.provision "shell", path: "setup-kubenode.sh"
+    kubenodetwo.vm.provision "shell", path: "setup-os-node.sh"
+  end
+  #############################
+  ###   KUBERNETES MASTER  #### 
+  #############################
+  config.vm.define "kubemaster", autostart:true do |kubemaster|
+    kubemaster.vm.box = UBUNTU_VM
+    kubemaster.vm.hostname = 'kubemaster'
+    kubemaster.vm.network "private_network", ip: KUBEMASTER_IP
+    kubemaster.vm.provider PROVIDER do |vbox|
+      vbox.name = "kubemaster"
+      vbox.memory = "4096"
+      vbox.cpus = "2"
+    end
+    kubemaster.vm.provision "shell", path: "setup-os-master.sh"
+    kubemaster.vm.provision "shell", path: "setup-kubemaster.sh"
   end
 end
