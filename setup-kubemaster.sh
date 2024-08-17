@@ -1,5 +1,4 @@
 #!/bin/bash
-###KUBEMASTER###
 # Reference: https://devopscube.com/setup-kubernetes-cluster-kubeadm/
 # Reference: https://computingforgeeks.com/deploy-kubernetes-cluster-on-ubuntu-with-kubeadm/
 sudo apt update -y
@@ -9,21 +8,19 @@ sudo apt autoremove -y
 touch /tmp/initout.log 
 
 # Enable iptables Bridged Traffic on all the Nodes
-sudo tee /etc/modules-load.d/containerd.conf <<EOF
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
 EOF
 
 sudo modprobe overlay
 sudo modprobe br_netfilter
-lsmod | grep br_netfilter
-lsmod | grep overlay
 
 # sysctl params required by setup, params persist across reboots
-sudo tee /etc/sysctl.d/kubernetes.conf <<EOF
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
 net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward = 1
+net.ipv4.ip_forward                 = 1
 EOF
 
 # Apply sysctl params without reboot
@@ -36,12 +33,16 @@ sudo swapoff -a
 
 # Install CRI-O Runtime On All The Nodes
 sudo apt-get update -y
-OS=xUbuntu_20.04
-CRIO_VERSION=1.28
-echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
-url -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
+curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key |
+    gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /" |
+    tee /etc/apt/sources.list.d/cri-o.list
+#OS=xUbuntu_20.04
+#CRIO_VERSION=1.28
+#echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+#echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+#url -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
+#curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
 
 sudo apt-get update -y
 sudo apt-get install -y cri-o cri-o-runc
@@ -51,10 +52,10 @@ sudo systemctl start crio.service
 
  # Install crictl
 
-#VERSION="v1.28.0"
-#wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
-#sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
-#rm -f crictl-$VERSION-linux-amd64.tar.gz
+VERSION="v1.30.0"
+wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+rm -f crictl-$VERSION-linux-amd64.tar.gz
 
 #Installing Kubeadm, Kubelet & Kubectl#
 KUBERNETES_VERSION=1.30
@@ -68,17 +69,23 @@ sudo apt-get update -y
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+sudo apt-get install -y jq
+local_ip="$(ip --json addr show eth0 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+cat > /etc/default/kubelet << EOF
+KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+EOF
+
 sleep 12
 echo "Waiting for 120 Seconds...."
 echo "Lets initialize."
 
 # Initialize Kubeadm On Master Node To Setup Control Plane
 IPADDR=192.168.56.25 # IP Address of the master node
-POD_CIDR=10.244.0.0/16
+POD_CIDR=192.168.0.0/16
 NODENAME=$(hostname -s)
 sudo systemctl enable kubelet
 sudo kubeadm config images pull  --cri-socket unix:///var/run/crio/crio.sock
-sudo kubeadm init --cri-socket unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors Swap &>> /tmp/initout.log
+sudo kubeadm init --cri-socket unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME
 
 
 mkdir -p $HOME/.kube
@@ -87,14 +94,21 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 echo export KUBECONFIG=/etc/kubernetes/admin.conf | sudo tee -a /root/.bashrc
 
 
+
+
 sleep 12
 echo "Waiting for 120 Seconds...."
 
-cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
-sleep 10
 echo "#!/bin/bash" > /vagrant/cltjoincommand.sh
 kubeadm token create --print-join-command >> /vagrant/cltjoincommand.sh
 
-kubectl get po -n kube-system
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+wait 120
+
+lsmod | grep br_netfilter
+lsmod | grep overlay
+
+kubectl get pods -n kube-system
 kubectl get --raw='/readyz?verbose'
 echo 'y' | kubectl cluster-info 
+kubectl get pods -n kube-system

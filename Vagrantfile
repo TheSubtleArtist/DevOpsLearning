@@ -47,7 +47,7 @@ Vagrant.configure("2") do |config|
   #############################
   config.vm.define "kubenodeone", autostart:true do |kubenodeone|
     kubenodeone.vm.box = UBUNTU_VM
-    kubenodeone.vm.hostname = 'kubenodeone'
+    kubenodeone.vm.hostname = "kubenodeone"
     kubenodeone.vm.network "private_network", ip: KUBENODEONE_IP
     kubenodeone.vm.provider PROVIDER do |vbox|
       vbox.name = "kubenodeone"
