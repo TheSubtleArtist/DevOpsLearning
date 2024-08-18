@@ -31,14 +31,14 @@ Vagrant.configure("2") do |config|
   #############################
   config.vm.define "kubeslaveone", autostart:true do |kubeslaveone|
     kubeslaveone.vm.box = UBUNTU_VM
-    kubeslaveone.vm.hostname = "kubenodeone"
+    kubeslaveone.vm.hostname = "kubeslaveone"
     kubeslaveone.vm.network "private_network", ip: KUBESLAVEONE_IP
     kubeslaveone.vm.provider PROVIDER do |vbox|
       vbox.name = "kubeslaveone"
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubeslaveone.vm.provision "shell", path: "setup-os-slave.sh"
+    kubeslaveone.vm.provision "shell", path: "os-setup-slave.sh"
   end
   #############################
   ###   KUBERNETES NODE 2  #### 
@@ -46,13 +46,13 @@ Vagrant.configure("2") do |config|
   config.vm.define "kubeslavetwo", autostart:true do |kubeslavetwo|
     kubeslavetwo.vm.box = UBUNTU_VM
     kubeslavetwo.vm.hostname = 'kubeslavetwo'
-    kubeslavetwo.vm.network "private_network", ip: KUBENODETWO_IP
+    kubeslavetwo.vm.network "private_network", ip: KUBESLAVETWO_IP
     kubeslavetwo.vm.provider PROVIDER do |vbox|
       vbox.name = "kubeslavetwo"
       vbox.memory = "4096"
       vbox.cpus = "2"
     end
-    kubeslavetwo.vm.provision "shell", path: "setup-os-slave.sh"
+    kubeslavetwo.vm.provision "shell", path: "os-setup-slave.sh"
   end
   #############################
   ###   KUBERNETES MASTER  #### 

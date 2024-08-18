@@ -1,9 +1,3 @@
-- name: One Playbook to Rule Them All
-- hosts: localhost
-  tasks:
-  - name: Execute the Playbooks
-    ansible.builtin.import_playbook: "{{item}}"
-    loop:
-      - setup-dependenices.yml
-      - setup-controller.yml
-      - setup-worker.yml
+- import_playbook: setup-dependencies.yml
+- import_playbook: setup-controller.yml
+- import_playbook: setup-workers.yml

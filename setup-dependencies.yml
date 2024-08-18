@@ -1,47 +1,46 @@
 
 - name: Implement Dependencies
   hosts: all
+  become: true
   tasks:
-
    - name: disable UFW firewall for labs
      service:
-        name: ufw
-        state: stopped
-        enabled: false
-
+      name: ufw
+      state: stopped
+      enabled: false
    - name: Disable SWAP
-     shell: |
-       swapoff -a
-
+     shell: swapoff -a
    - name: Disable SWAP in fstab
      lineinfile:
-       path: /etc/fstab
-       regexp: '^.*swap.*$'
-       line: '#\0'
-       backrefs: yes
-
+      path: /etc/fstab
+      regexp: '^.*swap.*$'
+      line: '#\0'
+      backrefs: yes
+   - name: Ensure br_netfilter is enabled.
+     modprobe:
+      name: br_netfilter
+      state: present
    - name: ensure net.bridge.bridge-nf-call-ip6tables is set to 1
      sysctl:
-       name: net.bridge.bridge-nf-call-iptables
-       value: '1'
-       state: present
-       reload: yes
-
+      name: net.bridge.bridge-nf-call-iptables
+      value: '1'
+      state: present
+      reload: true
+      sysctl_file: /etc/sysctl.d/99-sysctl.conf
    - name: Installation of apt-utils
      apt:
       name: apt-transport-https
       state: present
       update_cache: yes
-
    - name: Adding Docker GPG key
      ansible.builtin.apt_key:
-       url: https://download.docker.com/linux/ubuntu/gpg
-       state: present
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
 
    - name: Adding Docker Repository
      apt_repository:
-       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-       state: present
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      state: present
 
    - name: Installation of Docker
      apt:
@@ -52,33 +51,45 @@
        - docker-ce-cli
        - containerd.io
        - docker-compose
-
    - name: Setting value of SystemdCgroup
      shell: |
-       containerd config default | sudo tee /etc/containerd/config.toml | grep SystemdCgroup
-       sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
-
+      containerd config default | sudo tee /etc/containerd/config.toml | grep SystemdCgroup
+      sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
    - name : Starting Service of Docker
      service:
-       name: docker
-       state: started
-       enabled: yes
-
-   - name: Add Kubernetes apt repository
+      name: docker
+      state: started
+      enabled: yes
+   - name: install APT Transport HTTPS
+     apt:
+      name: apt-transport-https
+      state: present
+   - name: Create directory for apt-key
+     file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: "0644"    
+   - name: Add an Apt signing key, uses whichever key is at the URL
+     ansible.builtin.apt_key:
+      url: https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key
+      state: present
+   - name: add Kubernetes' APT repository
      apt_repository:
-       repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-       state: present
-
+      repo: deb https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /
+      state: present
+      filename: kubernetes
+      update_cache: true
+      mode: 0644
    - name: Install kubelet and kubeadm
      apt:
-        name: "{{ item }}"
-        state: present
+      name: "{{ item }}"
+      state: present
      loop:
-       - kubeadm
-       - kubelet
+      - kubeadm
+      - kubelet
 
    - name: start kubelet
      service:
-       name: kubelet
-       enabled: yes
-       state: started
+      name: kubelet
+      enabled: yes
+      state: started
