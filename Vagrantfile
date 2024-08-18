@@ -5,7 +5,7 @@
 ###########################
 UBUNTU_VM='xcoo/focal64'
 PROVIDER='virtualbox'
-# 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
+
 #############################
 ###   NETWORK VARIABLES   ###
 #############################
