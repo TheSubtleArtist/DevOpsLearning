@@ -1,4 +1,5 @@
 .vagrant
 .userdata
 .pem
-.terraform
+.terraform*
+.git
