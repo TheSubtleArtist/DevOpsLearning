@@ -1,7 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# My Github Token: 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
 ###########################
 ###   IMAGE VARIABLES   ###
 ###########################
