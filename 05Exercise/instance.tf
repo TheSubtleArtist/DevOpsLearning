@@ -35,9 +35,9 @@ resource "aws_instance" "ex05-inst" {
 }
 
 output "PublicIP" {
-  value = aws_instance.ex04-inst.public_ip
+  value = aws_instance.ex05-inst.public_ip
 }
 
 output "PrivateIP" {
-  value = aws_instance.ex04-inst.private_ip
+  value = aws_instance.ex05-inst.private_ip
 }
