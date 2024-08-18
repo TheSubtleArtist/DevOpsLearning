@@ -3,7 +3,8 @@ sudo apt-get upgrade -y
 sudo apt-get install -y sshpass
 
 mkdir -p /home/vagrant/kube-cluster
-cp setup-os-master.sh /home/vagrant/kube-cluster/
+cp /vagrant/setup-kubemaster.sh /home/vagrant/kube-cluster/
+sudo chmod +x /home/vagrant/kube-cluster/setup-kubemaster.sh
 sudo chown -R vagrant:vagrant /home/vagrant
 
 #CURRENTUSER=$(whoami)

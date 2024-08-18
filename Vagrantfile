@@ -67,5 +67,7 @@ Vagrant.configure("2") do |config|
       vbox.cpus = "2"
     end
     kubemaster.vm.provision "shell", path: "setup-os-master.sh"
+    kubemaster.vm.provision "shell", path: "setup-kubemaster.sh"
+    
   end
 end
