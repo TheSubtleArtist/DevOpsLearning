@@ -1,17 +1,17 @@
 provider "aws" {
   region = "us-east-1"
-  #   access_key = ""
-  #   secret_key = ""	
+  #  access_key = configured in AWSCLI
+  #  secret_key = CONFIGURED in AWSCLI	
 }
 
 resource "aws_instance" "intro" {
-  ami                    = "ami-03657b56516ab7912"
+  ami                    = "ami-0b1ca8b711f1d1fd7"
   instance_type          = "t2.micro"
-  availability_zone      = "us-east-1git a"
-  key_name               = "dove-key"
-  vpc_security_group_ids = ["sg-0780815f55104be8a"]
+  availability_zone      = "us-east-1a"
+  key_name               = "18Terraformkey.pem"
+  vpc_security_group_ids = ["sg-011080c64a370f323"]
   tags = {
-    Name    = "Dove-Instance"
-    Project = "Dove"
+    Name    = "Tutorial-Instance"
+    Project = "Terraform-Tutorial"
   }
 }

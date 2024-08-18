@@ -27,13 +27,13 @@ Vagrant.configure("2") do |config|
     echo "Universal Config Complete"
   SHELL
 
-  ##########################
-  ###   Docker Engine   #### 
-  ##########################
-  config.vm.define "terraform", autostart:false do |terraform|
+  #############################
+  ###   TERRAFORM ENGINE   #### 
+  #############################
+  config.vm.define "terraform", autostart:true do |terraform|
     terraform.vm.box = UBUNTU_VM
     terraform.vm.hostname = 'terraform'
-    terraform.vm.network "private_network", ip: DOCKER_IP
+    terraform.vm.network "private_network", ip: TERRAFORM_IP
     terraform.vm.provider PROVIDER do |vbox|
       vbox.memory = "8192"
       vbox.cpus = "4"
