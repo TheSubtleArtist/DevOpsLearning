@@ -3,7 +3,7 @@ resource "aws_key_pair" "dove-key" {
   public_key = file("dovekey.pub")
 }
 
-resource "aws_instance" "ex03-inst" {
+resource "aws_instance" "ex04-inst" {
   ami                    = var.AMIS[var.REGION]
   instance_type          = "t2.micro"
   availability_zone      = var.ZONE1
@@ -35,9 +35,9 @@ resource "aws_instance" "ex03-inst" {
 }
 
 output "PublicIP" {
-  value = aws_instance.dove-inst.public_ip
+  value = aws_instance.ex04-inst.public_ip
 }
 
 output "PrivateIP" {
-  value = aws_instance.dove-inst.private_ip
+  value = aws_instance.ex04-inst.private_ip
 }
