@@ -14,6 +14,14 @@ resource "aws_security_group" "dove_stack_sg" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.MYIP]
+
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.MYIP]
+
   }
   tags = {
     Name = "allow-ssh"
