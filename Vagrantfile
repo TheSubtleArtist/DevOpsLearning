@@ -41,5 +41,6 @@ Vagrant.configure("2") do |config|
     end
     terraform.vm.provision "shell", path: "setup-os.sh"
     terraform.vm.provision "shell", path: "setup-terraform.sh"
+    terraform.vm.provision "shell", path: "setup-awscli.sh"
   end
 end
