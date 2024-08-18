@@ -9,7 +9,7 @@ resource "aws_instance" "intro" {
   instance_type          = "t2.micro"
   availability_zone      = "us-east-1b"
   subnet_id              = "subnet-0d6de4f0e7a758d45"
-  key_name               = "../18Terraformkey.pem"
+  key_name               = "../18TerFrmKey.pem"
   vpc_security_group_ids = ["sg-011080c64a370f323"]
   tags = {
     Name    = "Tutorial-Instance"
