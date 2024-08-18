@@ -35,8 +35,8 @@ Vagrant.configure("2") do |config|
     terraform.vm.hostname = 'terraform'
     terraform.vm.network "private_network", ip: TERRAFORM_IP
     terraform.vm.provider PROVIDER do |vbox|
-      vbox.memory = "8192"
-      vbox.cpus = "4"
+      vbox.memory = "16384"
+      vbox.cpus = "6"
       vbox.name = "terraform"
     end
     terraform.vm.provision "shell", path: "setup-os.sh"
