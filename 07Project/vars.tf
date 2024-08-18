@@ -5,7 +5,7 @@ variable AWS_REGION {
 variable AMIS {
   type = map
   default = {
-    us-east-2  = "ami-07efac79022b86107"
+    us-east-2  = "ami-0f5d333879b58a767" # ubuntu 20.04 in us-east-2
     us-east-1  = "ami-06397100adf427136"
     ap-south-1 = "ami-009110a2bf8d7dd0a"
   }
@@ -23,8 +23,8 @@ variable USERNAME {
   default = "ubuntu"
 }
 
-variable MYIP {
-  default = "183.83.39.2/32"
+variable "MYIP" {
+  default = "97.107.199.151/32"
 }
 
 variable rmquser {
@@ -52,7 +52,7 @@ variable instance_count {
 }
 
 variable VPC_NAME {
-  default = "vprofile-VPC"
+  default = "vprofile0-vpc"
 }
 
 variable Zone1 {
