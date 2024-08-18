@@ -6,11 +6,11 @@ variable "ZONE1" {
   default = "us-east-2a"
 }
 
-variable ZONE2 {
+variable "ZONE2" {
   default = "us-east-2b"
 }
 
-variable ZONE3 {
+variable "ZONE3" {
   default = "us-east-2c"
 }
 
@@ -26,14 +26,14 @@ variable "USER" {
   default = "ec2-user"
 }
 
-variable PUB_KEY {
+variable "PUB_KEY" {
   default = "dovekey.pub"
 }
 
-variable PRIV_KEY {
+variable "PRIV_KEY" {
   default = "dovekey"
 }
 
-variable MYIP {
+variable "MYIP" {
   default = "97.107.199.151/32"
 }
