@@ -8,7 +8,7 @@ resource "aws_instance" "ex03-inst" {
   instance_type          = "t2.micro"
   availability_zone      = var.ZONE1
   key_name               = aws_key_pair.dove-key.key_name
-  vpc_security_group_ids = ["sg-0780815f55104be8a"]
+  vpc_security_group_ids = ["sg-020c98cc025bcabd9"]
   tags = {
     Name    = "Exercise03-Instance"
     Project = "TerraformTutorial"
