@@ -3,14 +3,14 @@ resource "aws_key_pair" "dove-key" {
   public_key = file("dovekey.pub")
 }
 
-resource "aws_instance" "ex04-inst" {
+resource "aws_instance" "ex05-inst" {
   ami                    = var.AMIS[var.REGION]
   instance_type          = "t2.micro"
   availability_zone      = var.ZONE1
   key_name               = aws_key_pair.dove-key.key_name
   vpc_security_group_ids = ["sg-020c98cc025bcabd9"]
   tags = {
-    Name    = "Exercise03-Instance"
+    Name    = "Exercise05-Instance"
     Project = "TerraformTutorial"
   }
 
