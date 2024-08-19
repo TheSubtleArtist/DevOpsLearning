@@ -20,10 +20,15 @@ WEB01_IP="192.168.56.9"
 
 
 Vagrant.configure("2") do |config|
-  config.hostmanager.enabled = true 
+  config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
-  config.vm.provider PROVIDER
+  config.hostmanager.manage_guest = true
+  config.ssh.insert_key = true
   config.vm.synced_folder ".", "/vagrant"
+  config.vbguest.auto_update = false
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "Universal Config Complete"
+  SHELL
 
 
   ####################
