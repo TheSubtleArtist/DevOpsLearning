@@ -1,5 +1,5 @@
 resource "aws_db_subnet_group" "vprofile-rds-subgrp" {
-  name       = "main"
+  name = "main"
   # Three subnets were created, the IDs are kept in a list
   subnet_ids = [module.vpc.private_subnets[0], module.vpc.private_subnets[1], module.vpc.private_subnets[2]]
   tags = {
@@ -25,7 +25,7 @@ resource "aws_db_instance" "vprofile-rds" {
   parameter_group_name   = "default.mysql5.6"
   multi_az               = "false" # controls high-availability
   publicly_accessible    = "false" # not for private subnets
-  skip_final_snapshot    = true # snapshots are kept when the RDS is deleted. That is expensive. "True" deletes snapshots hwne the RDS is deleted
+  skip_final_snapshot    = true    # snapshots are kept when the RDS is deleted. That is expensive. "True" deletes snapshots hwne the RDS is deleted
   db_subnet_group_name   = aws_db_subnet_group.vprofile-rds-subgrp.name
   vpc_security_group_ids = [aws_security_group.vprofile-backend-sg.id]
 }
