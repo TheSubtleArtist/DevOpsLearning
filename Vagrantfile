@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
   config.hostmanager.manage_host = true
   config.hostmanager.manage_guest = true
   config.ssh.insert_key = true
-  config.vm.synced_folder ".", "/host_share"
+  config.vm.synced_folder ".", "/vagrant"
   #config.vm.box_check_update = false
   #config.vm.box_check_update = false
   config.vbguest.auto_update = false
@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
     webkafe.vm.hostname = 'webkafe'
     webkafe.vm.network "private_network", ip: WEB_KAFE_IP
     webkafe.vm.provider PROVIDER do |vbox|
-      vbox.memory = "512"
+      vbox.memory = "1024"
       vbox.cpus = "1"
       vbox.name = "webkafe"
 
@@ -54,8 +54,9 @@ Vagrant.configure("2") do |config|
     wordpress.vm.hostname = 'wordpress'
     wordpress.vm.network "private_network", ip: WORDPRESS_IP
     wordpress.vm.provider PROVIDER do |vbox|
-      vbox.memory = "512"
-      vbox.cpus = "1"
+      vbox.memory = "16384"
+      vbox.cpus = "4"
+      vbox.name = "wordpress"
     end
     wordpress.vm.provision "shell", path: "setup-wordpress.sh"
   end
