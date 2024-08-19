@@ -1,2 +1,4 @@
 .userdata
 *.pem
+.vagrant
+
