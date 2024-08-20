@@ -1,7 +1,7 @@
 Mappings: 
   AmiRegionMap: 
     us-east-1: 
-      AMI: "ami-0947d2ba12ee1ff75"
+      AMI: "ami-0b1ca8b711f1d1fd7"
     us-east-2: 
       AMI: "ami-03657b56516ab7912"
     us-west-1: 

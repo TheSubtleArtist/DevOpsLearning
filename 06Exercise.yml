@@ -3,7 +3,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
-      ImageId: ami-0cda377a1b884a1bc
+      ImageId: ami-0b1ca8b711f1d1fd7
       Tags:
         - Key: "Name"
           Value: !Join ["-", [my, inst, from, cloudformation]]
