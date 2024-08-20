@@ -1,0 +1,8 @@
+NEXUSIP=192.168.56.16
+NEXUSPORT=8081
+NEXUS-USER=admin
+NEXUS-PASS=nexuspassword123
+SNAP-REPO=vprofile-snapshot
+RELEASE-REPO=vprofile-release
+CENTRAL-REPO=vpro-maven-central
+NEXUS-GRP-REPO=vpro-maven-group
