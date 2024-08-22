@@ -1,5 +1,7 @@
+# Parent template that calls nested templates
 Parameters:
   KeyPair:
+    # May be created before or during deployment
     Description: Amazon EC2 Key Pair
     Type: "AWS::EC2::KeyPair::KeyName"
   MyIP:
@@ -10,6 +12,7 @@ Resources:
   S3RoleforCiCd:
     Type: AWS::CloudFormation::Stack
     Properties:
+      # link to the bucket holding child child / nested templates. "stack-template" is the directory inside the vpro-cicd-templates
       TemplateURL: https://s3.amazonaws.com/vpro-cicd-templates/stack-template/cicds3role.yaml
   JenkinsInst:
     Type: AWS::CloudFormation::Stack

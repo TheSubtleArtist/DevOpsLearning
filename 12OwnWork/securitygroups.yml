@@ -1,0 +1,24 @@
+Resources:
+
+  SSH-SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ssh-sg
+      GroupDescription: Allow SSH from My Own IP
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref OwnIP
+  
+  HTTP-SG:
+  Type: 'AWS::EC2::SecurityGroup'
+  Properties:
+    GroupName: http-sg
+    GroupDescription: Allow HTTP from myip
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: !Ref OwnIP

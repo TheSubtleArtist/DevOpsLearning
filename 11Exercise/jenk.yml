@@ -62,6 +62,7 @@ Resources:
               sleep 10
               systemctl stop jenkins
               sleep 10
+              # Downloads the backup from a previous jenkins instance that is being migrated to the cloud
               aws s3 cp s3://cicd-data-vprofile/jenkins_cicdjobs.tar.gz /var/lib/
               cd /var/lib/
               tar xzvf jenkins_cicdjobs.tar.gz

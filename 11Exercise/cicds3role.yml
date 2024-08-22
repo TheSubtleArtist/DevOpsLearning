@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: 2010-09-09 # Required entry
 Resources:
   VPS3Role:
     Type: 'AWS::IAM::Role'

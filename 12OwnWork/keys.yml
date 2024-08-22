@@ -1,0 +1,28 @@
+Resources:
+
+  Type: AWS::EC2::KeyPair
+  Properties:
+    KeyFormat: pem
+    KeyName: UserKey
+    KeyType: rsa
+    Tags: 
+      - Key: Description
+        Value: Key for user accounts
+  
+  Type: AWS::EC2::KeyPair
+  Properties:
+    KeyFormat: pem
+    KeyName: ApplicationKey
+    KeyType: rsa
+    Tags: 
+      - Key: Description
+        Value: Key for application communication
+  
+  Type: AWS::EC2::KeyPair
+  Properties:
+    KeyFormat: pem
+    KeyName: ServiceKey
+    KeyType: rsa
+    Tags: 
+      - Key: Description
+        Value: Key for application communication

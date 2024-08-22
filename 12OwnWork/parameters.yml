@@ -1,0 +1,10 @@
+Parameters:
+  OwnIP:
+    Description: My Own IP Address
+    Type: CIDR
+    Default: 32.145.202.32/32
+  
+  virtualprivatecloud:
+    Description: designated VPC
+    Type: vpcID
+    Default: !Ref AWS::VpcId
