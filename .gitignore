@@ -1,0 +1,4 @@
+.vagrant
+bkp-jenkins.tar.gz
+bkp-nexus.tgz
+bkp-sonarqube.tgz
