@@ -16,12 +16,6 @@ sudo apt-get update -y
 echo "Install Jenkins"
 sudo apt-get install jenkins -y
 sudo apt-get install -y software-properties-common
-# Install Ansible
-echo "Install Ansible"
-sudo apt update -y 
-sudo apt install -y software-properties-common
-sudo add-apt-repository --yes --update ppa:ansible/ansible
-sudo apt install ansible -y
 echo "Update"
 echo "y" | sudo ufw enable
 sudo ufw allow 8080/tcp

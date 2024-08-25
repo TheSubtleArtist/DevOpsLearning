@@ -16,6 +16,7 @@ SONAR_IP="192.168.56.33"
 BACKEND_IP="192.168.56.34"
 TOMCAT_STAGING_IP="192.168.56.35"
 TOMCAT_PRODUCTION_IP="192.168.56.36"
+KOPS_IP="192.168.56.37"
 
 Vagrant.configure("2") do |config|
   config.hostmanager.enabled = true
@@ -37,10 +38,12 @@ Vagrant.configure("2") do |config|
     jenkins.vm.hostname = 'jenkins'
     jenkins.vm.network "private_network", ip: JENKINS_IP
     jenkins.vm.provider PROVIDER do |vbox|
-      vbox.memory = "12288"
-      vbox.cpus = "3"
+      vbox.memory = "8192"
+      vbox.cpus = "2"
     end
     jenkins.vm.provision "shell", path: "setup-jenkins-ubuntu.sh"
+    jenkins.vm.provision "shell", path: "setup-ansible-ubuntu.sh"
+    jenkins.vm.provision "shell", path: "setup-docker-ubuntu.sh"
   # Credentials: jenkins:jenkinspassword123
   end
   #################
@@ -65,8 +68,8 @@ Vagrant.configure("2") do |config|
     sonar.vm.hostname = "sonarqube"
     sonar.vm.network "private_network", ip: SONAR_IP
     sonar.vm.provider "virtualbox" do |vbox|
-      vbox.memory = "8192"
-      vbox.cpus = "2"
+      vbox.memory = "1024"
+      vbox.cpus = "1"
     end
     sonar.vm.provision "shell", path: "setup-sonar-ubuntu.sh"
   end
@@ -80,8 +83,8 @@ Vagrant.configure("2") do |config|
     backend.vm.hostname = 'backend'
     backend.vm.network "private_network", ip: BACKEND_IP
     backend.vm.provider PROVIDER do |vbox|
-      vbox.memory = "4096"
-      vbox.cpus = "2"
+      vbox.memory = "2048"
+      vbox.cpus = "1"
       vbox.name = "backend-server"
     end
     backend.vm.provision "shell", inline: <<-SHELL
@@ -100,8 +103,8 @@ Vagrant.configure("2") do |config|
     staging.vm.hostname = 'staging'
     staging.vm.network "private_network", ip: TOMCAT_STAGING_IP
     staging.vm.provider PROVIDER do |vbox|
-      vbox.memory = "4096"
-      vbox.cpus = "2"
+      vbox.memory = "2048"
+      vbox.cpus = "1"
       vbox.name = "tomcat-staging"
     end
     staging.vm.provision "shell", inline: <<-SHELL
@@ -119,8 +122,8 @@ Vagrant.configure("2") do |config|
     production.vm.hostname = 'production'
     production.vm.network "private_network", ip: TOMCAT_PRODUCTION_IP
     production.vm.provider PROVIDER do |vbox|
-      vbox.memory = "4096"
-      vbox.cpus = "2"
+      vbox.memory = "2048"
+      vbox.cpus = "1"
       vbox.name = "tomcat-production"
     end
     #production.vm.provision "shell", inline: <<-SHELL
@@ -129,4 +132,19 @@ Vagrant.configure("2") do |config|
     #SHELL
     #production.vm.provision "shell", path: "tomcat-setup-ubuntu.sh"
   end
+  ########################
+  ###   KOPS CONTROL   ### 
+  ########################
+  config.vm.define "kops", autostart:true do |kops|
+    kops.vm.box = UBUNTU_VM
+    kops.vm.hostname = 'kops'
+    kops.vm.network "private_network", ip: KOPS_IP
+    kops.vm.provider PROVIDER do |vbox|
+      vbox.memory = "2048"
+      vbox.cpus = "1"
+      vbox.name = "kops"
+    end
+    kops.vm.provision "shell", path: "setup-kOps-ubuntu.sh"
+  end
+
 end

@@ -1,0 +1,9 @@
+    1  ssh-keygen
+    2  aws configure
+    3  nslookup -type=ns 24-kubevpro.avyavastha.site
+    5  kops create cluster --name 24-kubevpro.avyavastha.site --state=s3://24-vprofile-kops-state --zones=us-east-2a,us-east-2b --node-count=2 --node-size=t2.micro --master-size=t2.micro --dns-zone=24-kubevpro.avyavastha.site
+    6  kops update cluster --name=24-kubevpro.avyavastha.site --state=s3://24-vprofile-kops-state --yes
+   13  kops validate cluster --state=s3://24-vprofile-kops-state
+   20  kubectl get nodes
+   24  kops delete cluster --name=24-kubevpro.avyavastha.site --state=s3://24-vprofile-kops-state --yes
+
