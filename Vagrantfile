@@ -145,6 +145,8 @@ Vagrant.configure("2") do |config|
       vbox.name = "kops"
     end
     kops.vm.provision "shell", path: "setup-kOps-ubuntu.sh"
+    kops.vm.provision "shell", path: "setup-docker-ubuntu.sh"
+    #kops.vm.provision "shell", path: "setup-kube-up.sh"
   end
 
 end

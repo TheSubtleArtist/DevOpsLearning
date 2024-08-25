@@ -18,4 +18,4 @@ sudo apt-get update
 VERSIONSTRING=5:25.0.0-1~ubuntu.20.04~focal
 sudo apt-get install -y docker-ce=$VERSIONSTRING docker-ce-cli=$VERSIONSTRING containerd.io docker-buildx-plugin docker-compose-plugin
 
-sudo usermod -aG docker jenkins
+sudo usermod -aG docker vagrant
