@@ -17,6 +17,7 @@ BACKEND_IP="192.168.56.34"
 TOMCAT_STAGING_IP="192.168.56.35"
 TOMCAT_PRODUCTION_IP="192.168.56.36"
 KOPS_IP="192.168.56.37"
+AGENT01_IP="192.168.56.38"
 
 Vagrant.configure("2") do |config|
   config.hostmanager.enabled = true
@@ -45,6 +46,27 @@ Vagrant.configure("2") do |config|
     jenkins.vm.provision "shell", path: "setup-ansible-ubuntu.sh"
     jenkins.vm.provision "shell", path: "setup-docker-ubuntu.sh"
   # Credentials: jenkins:jenkinspassword123
+  end
+  #########################
+  ###   JENKINS AGENT   ### 
+  #########################
+  config.vm.define "agent01", autostart:true do |agent01|
+    agent01.vm.box = UBUNTU_VM
+    agent01.vm.hostname = 'agent01'
+    agent01.vm.network "private_network", ip: AGENT01_IP
+    agent01.vm.provider PROVIDER do |vbox|
+      vbox.memory = "8192"
+      vbox.cpus = "2"
+      vbox.name = "Jenkins Agent01"
+    end
+    agent01.vm.provision "shell", path: "setup-docker-ubuntu.sh"
+    agent01.vm.provision "shell", inline: <<-SHELL
+      sudo apt update -y
+      sudo apt-get upgrade -y
+      sudo apt-get install -y fontconfig openjdk-11-jdk software-properties-common
+      mkdir /home/vagrant/agen01
+      sudo chown -R vagrant:vagrant /home/vagrant
+    SHELL
   end
   #################
   ###   NEXUS   ### 

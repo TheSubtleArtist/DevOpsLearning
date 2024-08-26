@@ -13,4 +13,7 @@ contexts:
 current-context: 24-kubevpro.avyavastha.site
 kind: Config
 preferences: {}
-users: null
+users:
+- name: AKIATCKAPXZMGIL7HQGB
+  user:
+    token: huu48zE+4hZOYEfLzhDohnJgifqq7SErNK9Pn7Cq
