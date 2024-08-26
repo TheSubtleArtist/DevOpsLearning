@@ -100,7 +100,7 @@ pipeline {
         stage('Kubernetes Deploy') {
 	  agent { label 'agent01' }
             steps {
-                    sh "helm upgrade --install --force vproflie-stack cicd-kube-docker/helm/vprofilecharts --set appimage=${registry}:${BUILD_NUMBER} --namespace prod"
+                    sh "helm upgrade --install --force vproflie-stack helm/vprofilecharts --set appimage=${registry}:${BUILD_NUMBER} --namespace prod"
             }
         }
 
