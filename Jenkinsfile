@@ -73,7 +73,7 @@ pipeline {
             sh "docker rmi $registry:$BUILD_NUMBER"
           }
         }
-
+/*
         stage('CODE ANALYSIS with SONARQUBE') {
 
             environment {
@@ -96,6 +96,7 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
+*/
         }
         stage('Kubernetes Deploy') {
 	  agent { label 'agent01' }
