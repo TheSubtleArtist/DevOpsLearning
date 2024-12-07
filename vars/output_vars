@@ -1,0 +1,15 @@
+region: us-east-1
+vpcid: vpc-08dcedc3f771daba5
+pubsub1id: subnet-0d1b59efda4c21f95
+pubsub2id: subnet-04d399a11af5bf689
+pubsub3id: subnet-08d7e5a7967bfddb9
+prvsub1id: subnet-051fa0802bfcbd2c4
+prvsub2id: subnet-09d25058b44f1f594
+prvsub3id: subnet-0975c0324ff280014
+igwid: igw-098c82f6b1a23cb7f
+pubRTid: rtb-0c0d6bc68e90acb8c
+NATGWid: nat-0f57c681b98aa0869
+privRTid: rtb-0a827e8f5003e3190
+# BEGIN ANSIBLE MANAGED BLOCK
+BastionHostSGid: "sg-0671947154b2a34bb"
+# END ANSIBLE MANAGED BLOCK

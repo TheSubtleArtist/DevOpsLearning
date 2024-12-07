@@ -1,0 +1,6 @@
+ansible_ami: ami-0b1ca8b711f1d1fd7
+nginx_ami: ami-0b1ca8b711f1d1fd7
+tomcat_ami: ami-0b1ca8b711f1d1fd7
+memcache_ami: ami-0b1ca8b711f1d1fd7
+rmq_ami: ami-0b1ca8b711f1d1fd7
+mysql_ami: ami-0b1ca8b711f1d1fd7

@@ -1,0 +1,5 @@
+*.pem
+*credentials.csv
+gitToken.txt
+*.sql
+*.war

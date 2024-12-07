@@ -1,0 +1,5 @@
+---
+- import_playbook: vpc_setup.yml
+- import_playbook: bastion_instance.yml
+- import_playbook: vpro-ec2-stack.yml
+- import_playbook: provision-stack/site.yml

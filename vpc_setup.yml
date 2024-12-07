@@ -1,0 +1,197 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: Import VPC Variables
+      include_vars: vars/vpc_setup
+    
+    - name: Create vprofile VPC
+      ec2_vpc_net:
+        name: "{{vpc_name}}"
+        cidr_block: "{{vpcCidr}}"
+        region: "{{region}}"
+        state: "{{state}}"
+      register: vpcout
+    
+    - name: create PubSub1 in Zone1
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone1}}"
+        state: "{{state}}"
+        cidr: "{{PubSub1Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-pubsub1
+      register: pubsub1_out
+
+    - name: create PubSub2 in Zone2
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone2}}"
+        state: "{{state}}"
+        cidr: "{{PubSub2Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-pubsub2
+      register: pubsub2_out
+
+    - name: create PubSub3 in Zone3
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone3}}"
+        state: "{{state}}"
+        cidr: "{{PubSub3Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-pubsub3
+      register: pubsub3_out
+
+    - name: create PrvSub1 in Zone1
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone1}}"
+        state: "{{state}}"
+        cidr: "{{PrvSub1Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-prvsub1
+      register: prvsub1_out
+
+    - name: create PrvSub2 in Zone2
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone2}}"
+        state: "{{state}}"
+        cidr: "{{PrvSub2Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-prvsub2
+      register: prvsub2_out
+
+    - name: create PrvSub3 in Zone3
+      ec2_vpc_subnet:
+        vpc_id: "{{vpcout.vpc.id}}"
+        region: "{{region}}"
+        az: "{{zone3}}"
+        state: "{{state}}"
+        cidr: "{{PrvSub3Cidr}}"
+        map_public: yes
+        resource_tags:
+          Name: vprofile-prvsub3
+      register: prvsub3_out
+
+    - name: Create Internet gateway with tags
+      ec2_vpc_igw:
+        vpc_id: "{{vpcout.vpc.id}}"
+        state: "{{state}}"
+        region: "{{region}}"
+        tags:
+          Tag1: vprofile
+          Tag2: top-level
+      register: igw_out
+
+    - name: Set up public subnet route table
+      ec2_vpc_route_table:
+        vpc_id: "{{vpcout.vpc.id}}"
+        state: "{{state}}"
+        region: "{{region}}"
+        tags:
+          Name: vprofile-public-rt
+        subnets:
+          - "{{ pubsub1_out.subnet.id }}"
+          - "{{ pubsub2_out.subnet.id }}"
+          - "{{ pubsub3_out.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ igw_out.gateway_id }}"
+      register: pubRT_out
+
+    - name: Create new nat gateway and allocate new EIP.
+      ec2_vpc_nat_gateway:
+        state: "{{state}}"
+        subnet_id: "{{ pubsub1_out.subnet.id }}"
+        wait: true
+        region: "{{region}}"
+        if_exist_do_not_create: true
+      register: NATGW_out
+
+    - name: Set up private subnet route table
+      ec2_vpc_route_table:
+        vpc_id: "{{vpcout.vpc.id}}"
+        state: "{{state}}"
+        region: "{{region}}"
+        tags:
+          Name: vprofile-private-rt
+        subnets:
+          - "{{ prvsub1_out.subnet.id }}"
+          - "{{ prvsub2_out.subnet.id }}"
+          - "{{ prvsub3_out.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ NATGW_out.nat_gateway_id }}"
+      register: prvRT_out
+
+    - name: Set host ids as variables
+      set_fact:
+        vpcid: "{{vpcout.vpc.id}}"
+        pubsub1id: "{{pubsub1_out.subnet.id}}"
+        pubsub2id: "{{pubsub2_out.subnet.id}}"
+        pubsub3id: "{{pubsub3_out.subnet.id}}"
+        prvsub1id: "{{prvsub1_out.subnet.id}}"
+        prvsub2id: "{{prvsub2_out.subnet.id}}"
+        prvsub3id: "{{prvsub3_out.subnet.id}}"
+        igwid: "{{igw_out.gateway_id}}"
+        pubRTid: "{{pubRT_out.route_table.id}}"
+        NATGWid: "{{NATGW_out.nat_gateway_id}}"
+        privRTid: "{{prvRT_out.route_table.id}}"
+        cacheable: yes
+    
+    - name: Copy host ids to a file
+      copy:
+        content: 
+          "vpcid: {{vpcout.vpc.id}}\npubsub1id: {{pubsub1_out.subnet.id}}\npubsub2id: {{pubsub2_out.subnet.id}}\npubsub3id: {{pubsub3_out.subnet.id}}\nprvsub1id: {{prvsub1_out.subnet.id}}\nprvsub2id: {{prvsub2_out.subnet.id}}\nprvsub3id: {{prvsub3_out.subnet.id}}\nigwid: {{igw_out.gateway_id}}\npubRTid: {{pubRT_out.route_table.id}}\nNATGWid: {{NATGW_out.nat_gateway_id}}\nprivRTid: {{prvRT_out.route_table.id}}"
+        dest: vars/output_vars
+
+    - name: Create variables file for vpc output
+      copy:
+         content: "region: {{ region }}\nvpcid: {{ vpcout.vpc.id }}\npubsub1id: {{ pubsub1_out.subnet.id }}\npubsub2id: {{ pubsub2_out.subnet.id }}\npubsub3id: {{ pubsub3_out.subnet.id }}\nprvsub1id: {{ prvsub1_out.subnet.id }}\nprvsub2id: {{ prvsub2_out.subnet.id }}\nprvsub3id: {{ prvsub3_out.subnet.id }}\nigwid: {{ igw_out.gateway_id }}\npubRTid: {{ pubRT_out.route_table.id }}\nNATGWid: {{ NATGW_out.nat_gateway_id }}\nprivRTid: {{ prvRT_out.route_table.id }}\n"
+         dest: vars/output_vars
+
+    - name: ID number Datadump
+      blockinfile:
+        path: datadump
+        backup: false
+        block: |
+          vpc_id: "{{vpcout.vpc.id}}"
+          pubsub1_id: "{{pubsub1_out.subnet.id}}"
+          pubsub2_id: "{{pubsub2_out.subnet.id}}"
+          pubsub3_id: "{{pubsub3_out.subnet.id}}"
+          prvsub1_id: "{{pubsub1_out.subnet.id}}"
+          prvsub2_id: "{{pubsub2_out.subnet.id}}"
+          prvsub3_id: "{{pubsub3_out.subnet.id}}"
+          igateway_id: "{{igw_out.gateway_id}}"
+          pubRT_id: "{{pubRT_out.route_table.id}}"
+          prvRT_id: "{{prvRT_out.route_table.id}}"
+          natGateway_id: "{{NATGW_out.nat_gateway_id}}"
+
+    - name: Full Datadump
+      blockinfile:
+        path: datadump
+        backup: false
+        block: |
+          vpcInfo: "{{ vpcout }}"
+          pubsub1: "{{pubsub1_out}}"
+          pubsub2: "{{pubsub2_out}}"
+          pubsub3: "{{pubsub3_out}}"
+          prvsub1: "{{prvsub1_out}}"
+          prvsub2: "{{prvsub2_out}}"
+          prvsub3: "{{prvsub3_out}}"
+          igateway: "{{igw_out}}"
+          pubRouteTable: "{{pubRT_out}}"
+          prvRouteTeable: "{{prvRT_out}}"
+          natGateway: "{{NATGW_out}}"
