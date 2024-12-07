@@ -1,0 +1,35 @@
+# Python
+{"DevOps":["AWS", "Jenkins", "Python", "Ansible"], "Development":["Java", "NodeJS", ".net"], "ansible_facts"{"python":"/usr/bin/python"}}
+
+
+# JSON is just vertical python
+{"DevOps":
+  [
+    "AWS", 
+    "Jenkins", 
+    "Python", 
+    "Ansible"
+  ], 
+"Development":
+  [
+    "Java", 
+    "NodeJS", 
+    ".net"
+  ], 
+"ansible_facts": 
+  {
+    "python":"/usr/bin/python"}
+  }
+
+# YAML is JSON without the extra characters, lists use hyphen
+DevOps:
+  - AWS 
+  - Jenkins 
+  - Python 
+  - Ansible
+Development:
+  - Java 
+  - NodeJS 
+  - .net
+ansible_facts 
+  python: /usr/bin/python # Dictionaries are key:value pairs

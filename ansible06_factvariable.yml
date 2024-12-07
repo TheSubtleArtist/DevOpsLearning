@@ -1,0 +1,24 @@
+- name: Learning Fact Variables
+  hosts: all
+  tasks:
+    - name: Print OS names
+      debug:
+        var: ansible_distribution
+    - name: Access Memoryu details
+      debug:
+        var: ansible_memory_mb
+    - name: Print Free Memory
+      debug:
+        var: ansible_memory_mb.real.free
+    - name: Print Package manager
+      debug:
+        var: ansible_pkg_mgr
+    - name: Print IPv4
+      debug:
+        var: ansible_default_ipv4[1]
+    - name: Print Processor Information
+      debug:
+        var: ansible_processor
+    - name: Print Processor Name
+      debug:
+        var: ansible_processor[2]

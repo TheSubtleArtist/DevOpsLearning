@@ -1,0 +1,19 @@
+- name: Observe ansible variable precedence
+  hosts: all
+  become: yes
+  vars:
+    new_user: "infile_variable"
+    new_user_comment: "infile variable have highest priority"
+  tasks:
+    - name: create a user
+      user:
+        name: "{{new_user}}"
+        comment: "{{new_user_comment}}"
+      register: USEROUT
+
+    - debug:
+        var: USEROUT
+    - debug: 
+        var: USEROUT.state
+    - debug:
+        var: USEROUT.changed

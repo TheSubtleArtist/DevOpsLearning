@@ -1,0 +1,5 @@
+# this file becomes group_vars/websrvgrp
+# contains variable only applicable to the websrvgrp group
+ new_user: "webserveradmin"
+ new_user_comment: "administrator for web servers"
+ 

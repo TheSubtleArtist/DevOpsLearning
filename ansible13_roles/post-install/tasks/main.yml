@@ -1,0 +1,127 @@
+---
+# tasks file for post-install
+
+- name: Install apps on Centos
+  yum: 
+    name: "{{item}}"
+    state: present
+  when: ansible_distribution == "CentOS"
+  loop:
+    - ntp
+    - wget
+    - git
+    - zip
+    - unzip
+    - ntpsec
+
+- name: Install aps on Ubuntu
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+  loop:
+    - ntp
+    - wget
+    - git
+    - zip
+    - unzip
+    - ntpsec
+
+- name: Start and enable NTP on Centos
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable NTP on Debian
+  service:
+    name: ntp 
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+- name: Add groups on Centos
+  group: 
+    name: "{{item}}"
+    state: present
+  when: ansible_distribution == "CentOS"
+  loop:
+    - group01
+    - group02
+    - group03
+    - group04
+
+- name: Add groups on Ubuntu
+  group:
+    name: "{{item}}"
+    state: present
+  when: ansible_distribution == "Ubuntu"
+  loop:
+    - group05
+    - group06
+    - group07
+    - group08
+
+- name: Add users on Centos
+  user: 
+    name: "{{item}}"
+    state: present
+    group: group03
+  when: ansible_distribution == "CentOS"
+  loop:
+    - user01
+    - user02
+    - user03
+    - user04
+
+- name: Manage users on Ubuntu
+  user:
+    name: "{{item}}"
+    state: absent
+    group: group05
+  when: ansible_distribution == "Ubuntu"
+  loop:
+    - user05
+    - user06
+    - user07
+    - user08
+
+- name: Manage other users on Ubuntu
+  user:
+    name: "{{item}}"
+    state: present
+    group: group05
+  when: ansible_distribution == "Ubuntu"
+  loop: "{{usernames}}"
+
+- name: Push Banner File
+  copy: 
+    content: "This {{ansible_distribution}} is managed by Ansible.\n"
+    dest: /etc/motd
+
+- name: Deploy RHEL ntp.conf 
+  template:
+    src: ntp_rhel.conf.j2
+    dest: "{{ntp_path}}"
+  when: ansible_os_family == "RedHat"
+  notify: restart_rhel_ntp
+
+- name: Deploy Debian ntp.conf
+  template:
+    src: ntp_debian.conf.j2
+    dest: "{{ntp_path}}"
+  when: ansible_os_family == "Debian"
+  notify: restart_debian_ntp
+
+- name: Data Migration Directory
+  file:
+    path: /opt/devdata
+    state: directory
+    mode: 0775
+
+- name: Deploy dev data file
+  copy:
+    src: dev.txt
+    dest: /opt/devdata/dev.txt

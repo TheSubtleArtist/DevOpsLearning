@@ -1,0 +1,5 @@
+# this file becomes host_vars/web02
+# makes all variables applicable to only the host identified by the name of hthe file
+ new_user: "web02admin"
+ new_user_comment: "administrator for web02"
+

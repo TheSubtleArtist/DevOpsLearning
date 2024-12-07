@@ -1,0 +1,17 @@
+#ach role appears as a directory
+# this main yml appears one directory higher than the roles
+- name: Provisioning Servers
+  hosts: all
+  become: yes
+  # Each roll appears as part of the "roles" list variable
+  roles:
+    - post-install
+    - role: shaneholloman.ntp
+      vars:
+        ntpsec_client_servers:
+          - 1.kr.pool.ntp.org
+          - 3.kr.pool.ntp.org
+          - 2.kr.pool.ntp.org
+          - 1.kr.pool.ntp.org
+
+  

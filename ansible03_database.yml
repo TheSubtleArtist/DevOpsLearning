@@ -1,0 +1,66 @@
+- name: Setup WebServer
+  hosts: websrvgrp
+  become: yes
+  tasks:
+    - name: install Apache httpd
+      yum:
+        name: httpd
+        state: present
+    - name: Start and enable httpd
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: Copy Something
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0664'
+        backup: yes
+
+- name: Setup Database Server
+  hosts: dbsrvgrp
+  become: yes
+  vars:
+    dbname: groups
+    dbuser: devops
+    dbpass: admin123
+  tasks:
+    - debug: 
+        var: dbname
+        var: dbpass
+    - debug: 
+        msg: "The variables are {{dbname}}, {{dbuser}}, and {{dbpass}}"
+    - name: Install Python MySQL
+      yum: 
+        name: MySQL-python
+        state: present
+    - name: Install PyMySQL
+      yum: 
+        name: python2-PyMySQL
+        state: present
+    - name: Install PyMySQL
+      yum: 
+        name: python36-PyMySQL.noarch
+        state: present
+    - name: install mySQL
+      yum:
+        name: mariadb-server
+        state: present
+    - name: Start and enable mariadb
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+    - name: create database
+      mysql_db:
+        name: "((dbname))"
+        state: present
+    - name: Create database user with name 'admin'
+      mysql_user:
+        name: "((dbuser))"
+        password: "((dbpass))"
+        priv: '*.*:ALL'
+        state: present

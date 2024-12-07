@@ -1,0 +1,21 @@
+# this file must be placed inside a folder called group_vars
+# this file title is "all" which refers to all the hosts in the inventory file
+
+dbname: redhatdb
+dbuser: testadmin
+dbpass: testadmin123
+
+new_user: "external_file_var"
+new_user_comment: "external variable"
+
+usernames:
+  - user11
+  - user12
+  - user13
+  - user14
+
+
+ntp0: time-a-b.nist.gov 
+ntp1: time-b-b.nist.gov 
+ntp2: time-c-b.nist.gov
+ntp3: time-d-b.nist.gov  
