@@ -1,0 +1,5 @@
+rds:
+-admin:
+-D3adFr0g21234
+-proj05-rds-vprofile.cz0c0cqakpig.us-east-1.rds.amazonaws.com
+mq:rabbit:bluebunny75!@#$
