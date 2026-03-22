@@ -6,7 +6,7 @@
 ###   IMAGE VARIABLES   ###
 ###########################
 UBUNTU_VM="xcoo/focal64"
-ROCKY_VM="generic/rocky8"
+ROCKY_VM="rockylinux/9"
 PROVIDER='virtualbox'
 
 #############################
